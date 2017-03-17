@@ -1,15 +1,10 @@
 import pyodbc
-from ConfigParser import SafeConfigParser
+from configparser import ConfigParser
 
-config = SafeConfigParser()
-config.read('data/config.ini')
-
-db_file = 'data/Extract_ODB_{version}.mdb'.format(version='V10.2.11')
-user = 'admin'
-password = ''
-
-print([x for x in pyodbc.drivers() if x.startswith('Microsoft Access Driver')])
-odbc_conn_str = 'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:\Wikipedia\Rijksmonumenten-update\data\Extract_ODB_V10.2.11.mdb'
+#Make a connection with the ODBC database, make sure to set the correct ODBC-connection in the config.ini
+config = ConfigParser()
+config.read('config.ini')
+odbc_conn_str = config.get('main', 'ODBC_connection_string')
 conn = pyodbc.connect(odbc_conn_str)
 cur = conn.cursor()
 
