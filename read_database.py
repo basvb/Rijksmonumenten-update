@@ -9,7 +9,8 @@ conn = pyodbc.connect(odbc_conn_str)
 cur = conn.cursor()
 
 # run a query and get the results
-SQL = 'SELECT * FROM mytable;' # your query goes here
+SQL = 'SELECT OBJ_RIJKSNUMMER FROM OBJECT;' # your query goes here
 rows = cur.execute(SQL).fetchall()
+print(len(rows))
 cur.close()
 conn.close()
