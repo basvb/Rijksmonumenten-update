@@ -27,5 +27,12 @@ def no_longer_monument_on_wikipedia():
     rce_db.close()
     return missing_monuments
 
-print(len(no_longer_monument_on_wikipedia()))
-print(len(missing_monuments_on_wikipedia()))
+def missing_monuments_wikitemplates():
+    rce_db = read_database.RCEMonumentsDatabase()
+    rce_db.understand_database()
+    rce_db.monument_as_rowtemplate(14453)
+    rce_db.close()
+
+missing_monuments_wikitemplates()
+#print(len(no_longer_monument_on_wikipedia()))
+#print(len(missing_monuments_on_wikipedia()))
