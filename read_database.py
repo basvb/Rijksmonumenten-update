@@ -47,7 +47,6 @@ class WikipediaMonumentsDatabase:
         #Get a list of all monuments in the database by Rijksmonumentnumber
         base_url = 'https://tools.wmflabs.org/heritage/api/api.php?action=search&srcountry=nl&srlang=nl&format=json'
         all_monuments=False
-        counter = 0
         url = base_url
         monuments = []
         while not all_monuments:
@@ -58,10 +57,6 @@ class WikipediaMonumentsDatabase:
                 url = base_url + '&srcontinue=' + data['continue']['srcontinue']
             else:
                 break
-            #Temporary break to avoid endless loops and speedtest
-            if counter is 3:
-                break
-            counter += 1
         self.monuments = monuments
 
     def save_monuments_to_file(self, filename='WikipediaMonumentsDatabase'):
