@@ -26,7 +26,7 @@ class RCEMonumentsDatabase:
         #Get a list of all monuments in the database by Rijksmonumentnumber
         SQL = 'SELECT OBJ_RIJKSNUMMER FROM OBJECT;' # your query goes here
         rows = self.cur.execute(SQL).fetchall()
-        rows = [x[0] for x in rows]
+        rows = [int(x[0]) for x in rows]
         return rows
 
     def close(self):
@@ -68,6 +68,10 @@ class WikipediaMonumentsDatabase:
 
     def load_monuments_from_file(self, filename='WikipediaMonumentsDatabase'):
         #TODO: test whether file exists
+        self.from_file=True
         return load_obj(filename)
 
-
+    def all_monuments(self):
+        if self.monuments is None:
+            return False
+        return [int(x['id']) for x in self.monuments]

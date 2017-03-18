@@ -6,6 +6,5 @@ rce_db.all_monuments()
 rce_db.close()
 '''
 
-wiki_db = read_database.WikipediaMonumentsDatabase()
-wiki_db.load_monuments_from_web()
-wiki_db.save_monuments_to_file()
+wiki_db = read_database.WikipediaMonumentsDatabase(from_file=True)
+print(wiki_db.all_monuments())
