@@ -1,1 +1,5 @@
-RCE_DATABASE_VERSION = "V10.2.11"
+import read_database
+
+db = read_database.MonumentsDatabase()
+db.all_monuments()
+db.close()
