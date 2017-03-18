@@ -1,5 +1,10 @@
 import read_database
 
-db = read_database.MonumentsDatabase()
-db.all_monuments()
-db.close()
+'''
+rce_db = read_database.RCEMonumentsDatabase()
+rce_db.all_monuments()
+rce_db.close()
+'''
+
+wiki_db = read_database.WikipediaMonumentsDatabase()
+wiki_db.all_monuments()
