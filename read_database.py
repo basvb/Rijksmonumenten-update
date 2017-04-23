@@ -24,7 +24,7 @@ class RCEMonumentsDatabase:
 
     def all_monuments(self):
         #Get a list of all monuments in the database by Rijksmonumentnumber
-        SQL = 'SELECT OBJ_RIJKSNUMMER FROM OBJECT;'
+        SQL = 'SELECT OBJ_RIJKSNUMMER FROM tblOBJECT;'
         rows = self.cur.execute(SQL).fetchall()
         rows = [int(x[0]) for x in rows]
         return rows
@@ -41,14 +41,30 @@ class RCEMonumentsDatabase:
                 print("Field name: " + str(row.column_name) + ' (' + tab + ')')
 
     def monument_as_rowtemplate(self, rm_id):
-        SQL_object = 'SELECT OBJ_X_COORD, OBJ_Y_COORD, OBJ_CBSCODE_ZKP, PLA_NAAM, OBJ_RIJKSNUMMER, OBJ_NAAM, OBJ_WETSARTIKEL_ZKP FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)
-        SQL_objectadres ='SELECT * FROM tblOBJECTADRES WHERE OBJ_NUMMER={id};'.format(id=rm_id)
-        SQL_objectbeschrijving ='SELECT * FROM tblTEXT_OBJECT WHERE OBJ_NUMMER={id};'.format(id=rm_id)
+        #Determine the object number used in the database, if it can not be found return nothing/False
+        try:
+            obj_nummer= self.cur.execute('SELECT OBJ_NUMMER FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)).fetchall()[0][0]
+        except IndexError:
+            return False
+        SQL_object = 'SELECT OBJ_NUMMER, COM_RIJKSNUMMER, OBJ_X_COORD, OBJ_Y_COORD, OBJ_CBSCODE_ZKP, OBJ_RIJKSNUMMER, OBJ_NAAM, OBJ_WETSARTIKEL_ZKP FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)
+        SQL_objectadres ='SELECT OAD_STRAAT, OAD_HUISNUMMER, OAD_TOEVOEGING, OAD_PLA_NAAM_CAP FROM tblOBJECTADRES WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
+        SQL_objectbeschrijving ='SELECT * FROM tblTEXT_OBJECT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
 
-        rijksmonument = self.cur.execute(SQL_object).fetchall()
-        adres = self.cur.execute(SQL_objectadres).fetchall()
-        print(rijksmonument)
-        print(adres)
+        res_object = self.cur.execute(SQL_object).fetchall()
+        res_objectadres = self.cur.execute(SQL_objectadres).fetchall()
+        res_objectbeschrijving = self.cur.execute(SQL_objectbeschrijving).fetchall()
+        print(res_object)
+        print(res_objectadres)
+        print(res_objectbeschrijving)
+
+        #OAD_PLA_NAAM_CAP from tblOBJECTADRES is de woonplaats
+        woonplaats=res_objectadres[0][3]
+        if res_objectadres[0][2] is None:
+            adres = res_objectadres[0][0] + ' ' + str(res_objectadres[0][1])
+        else:
+            adres = res_objectadres[0][0] + ' ' + str(res_objectadres[0][1]) + str(res_objectadres[0][2])
+
+        print(woonplaats, adres)
 
         '''
         <!---->
