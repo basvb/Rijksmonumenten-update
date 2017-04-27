@@ -98,7 +98,12 @@ class RCEMonumentsDatabase:
             bouwjaar=''
 
         if not res_objectambacht == []:
-            architect = res_objectambacht[0][7] + ' ' + res_objectambacht[0][6]
+            if not res_objectambacht[0][7] is None and not res_objectambacht[0][6] is None:
+                architect = res_objectambacht[0][7] + ' ' + res_objectambacht[0][6]
+            if not res_objectambacht[0][6] is None:
+                architect = res_objectambacht[0][6]
+            else:
+                architect = ''
         else:
             architect=''
 
