@@ -35,7 +35,7 @@ class RCEMonumentsDatabase:
         print('tables')
         for b in tables:
             print(b)
-        tables = ['tblOBJECT', 'tblOBJECTBOUWACTIVITEIT', 'tblOBJECTFUNCTIE', 'tblOBJECTADRES', 'tblTEXT_OBJECT']
+        tables = ['tblOBJECT', 'tblOBJECTBOUWACTIVITEIT', 'tblOBJECTFUNCTIE', 'tblOBJECTADRES', 'tblTEXT_OBJECT', 'tblOBJECTFUNCTIE']
         for tab in tables:
             for row in self.cur.columns(table=tab):
                 print("Field name: " + str(row.column_name) + ' (' + tab + ')')
@@ -48,14 +48,23 @@ class RCEMonumentsDatabase:
             return False
         SQL_object = 'SELECT OBJ_NUMMER, COM_RIJKSNUMMER, OBJ_X_COORD, OBJ_Y_COORD, OBJ_CBSCODE_ZKP, OBJ_RIJKSNUMMER, OBJ_NAAM, OBJ_WETSARTIKEL_ZKP FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)
         SQL_objectadres ='SELECT OAD_STRAAT, OAD_HUISNUMMER, OAD_TOEVOEGING, OAD_PLA_NAAM_CAP FROM tblOBJECTADRES WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
-        SQL_objectbeschrijving ='SELECT * FROM tblTEXT_OBJECT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
+        SQL_objectbeschrijving ='SELECT TXO_TEKST FROM tblTEXT_OBJECT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
+        SQL_objectfunctie ='SELECT CAS_OMSCHRIJVING, OFU_IND_OORSPHUIDIG_ZKP FROM tblOBJECTFUNCTIE WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
+        SQL_objectbouwactiviteit ='SELECT * FROM tblOBJECTBOUWACTIVITEIT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
+        SQL_objectambacht ='SELECT * FROM tblOBJECTAMBACHT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
 
         res_object = self.cur.execute(SQL_object).fetchall()
         res_objectadres = self.cur.execute(SQL_objectadres).fetchall()
         res_objectbeschrijving = self.cur.execute(SQL_objectbeschrijving).fetchall()
+        res_objectfunctie = self.cur.execute(SQL_objectfunctie).fetchall()
+        res_objectbouwactiviteit = self.cur.execute(SQL_objectbouwactiviteit).fetchall()
+        res_objectambacht = self.cur.execute(SQL_objectambacht).fetchall()
         print(res_object)
         print(res_objectadres)
         print(res_objectbeschrijving)
+        print(res_objectfunctie)
+        print(res_objectbouwactiviteit)
+        print(res_objectambacht)
 
         #OAD_PLA_NAAM_CAP from tblOBJECTADRES is de woonplaats
         woonplaats=res_objectadres[0][3]
@@ -63,9 +72,37 @@ class RCEMonumentsDatabase:
             adres = res_objectadres[0][0] + ' ' + str(res_objectadres[0][1])
         else:
             adres = res_objectadres[0][0] + ' ' + str(res_objectadres[0][1]) + str(res_objectadres[0][2])
+        if res_object[0][6] is not None:
+            objectnaam = res_object[0][6]
+        elif res_objectbeschrijving[0][0] is not None:
+            objectnaam = res_objectbeschrijving[0][0][0:200]
+        else:
+            objectnaam = ''
+        type_obj=''
+        if res_objectfunctie[0][1] == 'Oorspronkelijke functie':
+            oorpsr_functie= res_objectfunctie[0][0]
+        else:
+            oorpsr_functie=''
+        if res_object[0][4] is not None:
+            cbs_tekst=res_object[0][4]
+        else:
+            cbs_tekst=''
+        if not res_objectbouwactiviteit == []:
+            if res_objectbouwactiviteit[0][7] == 'Oorspronkelijk bouwjaar':
+                bouwjaar=str(res_objectbouwactiviteit[0][2])
+                if not bouwjaar == str(res_objectbouwactiviteit[0][3]):
+                    bouwjaar=bouwjaar + '-' + str(res_objectbouwactiviteit[0][3])
+            else:
+                bouwjaar=''
+        else:
+            bouwjaar=''
 
-        print(woonplaats, adres)
+        if not res_objectambacht == []:
+            architect = res_objectambacht[0][7] + ' ' + res_objectambacht[0][6]
+        else:
+            architect=''
 
+        print(woonplaats, adres, oorpsr_functie, cbs_tekst, bouwjaar, architect)
         '''
         <!---->
         {{Tabelrij rijksmonument|woonplaats=Bennekom|objectnaam=De Harn

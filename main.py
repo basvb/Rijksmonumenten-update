@@ -32,7 +32,8 @@ def missing_monuments_wikitemplates():
     rce_db.understand_database()
     rce_db.monument_as_rowtemplate(14453)
     rce_db.monument_as_rowtemplate(514045)
-    rce_db.monument_as_rowtemplate(514053445)
+    rce_db.monument_as_rowtemplate(530912)
+    rce_db.monument_as_rowtemplate(38206)
     rce_db.close()
 
 missing_monuments_wikitemplates()
