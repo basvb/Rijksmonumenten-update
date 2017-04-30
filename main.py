@@ -1,4 +1,5 @@
 import read_database
+from operator import itemgetter
 
 '''
 rce_db = read_database.RCEMonumentsDatabase()
@@ -58,19 +59,18 @@ def monument_info_to_rowtemplate(monument_info):
                 image=monument_info['image'],
                 commonscat=monument_info['commonscat'])
 
-def missing_monuments_wikitemplates():
+
+def missing_monuments_dump():
     rce_db = read_database.RCEMonumentsDatabase()
-    rce_db.understand_database()
-    rce_db.get_rce_information_on_monument(532483)
-    print(monument_info_to_rowtemplate(rce_db.get_rce_information_on_monument(532495)))
-    rce_db.get_rce_information_on_monument(531046)
-    rce_db.get_rce_information_on_monument(531005)
+    rowtemplates=[]
+    for monument_identifier in missing_monuments_on_wikipedia():
+        monument_info = rce_db.get_rce_information_on_monument(monument_identifier)
+        rowtemplate = monument_info_to_rowtemplate(monument_info)
+        rowtemplates.append((monument_info['woonplaats'], rowtemplate)) #add a tuple with the place and the rowtemplate
     rce_db.close()
+    rowtemplates = sorted(rowtemplates,key=itemgetter(0)) #sort the rowtemplates based on the place
+    print(rowtemplates)
 
-
-#rce_db = read_database.RCEMonumentsDatabase()
-#for id in missing_monuments_on_wikipedia():
-#    rce_db.get_rce_information_on_monument(id)
-missing_monuments_wikitemplates()
+missing_monuments_dump()
 #print(len(no_longer_monument_on_wikipedia()))
 #print(len(missing_monuments_on_wikipedia()))
