@@ -3,7 +3,7 @@ import json
 from urllib.request import urlopen
 from configparser import ConfigParser
 import pickle
-import RD_to_WGS84 as cc
+import RD_to_WGS84
 
 def save_obj(obj, name ):
     with open('data/'+ name + '.pkl', 'wb') as f:
@@ -45,6 +45,7 @@ class RCEMonumentsDatabase:
         try:
             obj_nummer= self.cur.execute('SELECT OBJ_NUMMER FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)).fetchall()[0][0]
         except IndexError:
+            print(rm_id)
             return False
         SQL_object = 'SELECT OBJ_NUMMER, COM_RIJKSNUMMER, OBJ_X_COORD, OBJ_Y_COORD, OBJ_CBSCODE_ZKP, OBJ_RIJKSNUMMER, OBJ_NAAM, OBJ_WETSARTIKEL_ZKP FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)
         SQL_objectadres ='SELECT OAD_STRAAT, OAD_HUISNUMMER, OAD_TOEVOEGING, OAD_PLA_NAAM_CAP FROM tblOBJECTADRES WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
@@ -59,43 +60,54 @@ class RCEMonumentsDatabase:
         res_objectfunctie = self.cur.execute(SQL_objectfunctie).fetchall()
         res_objectbouwactiviteit = self.cur.execute(SQL_objectbouwactiviteit).fetchall()
         res_objectambacht = self.cur.execute(SQL_objectambacht).fetchall()
+        '''
         print(res_object)
         print(res_objectadres)
         print(res_objectbeschrijving)
         print(res_objectfunctie)
         print(res_objectbouwactiviteit)
         print(res_objectambacht)
+        '''
 
         #OAD_PLA_NAAM_CAP from tblOBJECTADRES is de woonplaats
-        woonplaats=res_objectadres[0][3]
-        if res_objectadres[0][2] is None:
+        woonplaats = res_objectadres[0][3]
+
+        if res_objectadres[0][1] is None:
+            adres = res_objectadres[0][0]
+        elif res_objectadres[0][2] is None:
             adres = res_objectadres[0][0] + ' ' + str(res_objectadres[0][1])
         else:
             adres = res_objectadres[0][0] + ' ' + str(res_objectadres[0][1]) + str(res_objectadres[0][2])
+        if adres == 'N.v.t.':
+            adres=''
+
         if res_object[0][6] is not None:
             objectnaam = res_object[0][6]
         elif res_objectbeschrijving[0][0] is not None:
             objectnaam = res_objectbeschrijving[0][0][0:200]
         else:
             objectnaam = ''
-        type_obj=''
-        if res_objectfunctie[0][1] == 'Oorspronkelijke functie':
-            oorpsr_functie= res_objectfunctie[0][0]
+
+        type_obj = ''
+        if res_objectfunctie == []:
+            oorpsr_functie = ''
+        elif res_objectfunctie[0][1] == 'Oorspronkelijke functie':
+            oorpsr_functie = res_objectfunctie[0][0]
         else:
-            oorpsr_functie=''
+            oorpsr_functie = ''
         if res_object[0][4] is not None:
-            cbs_tekst=res_object[0][4]
+            cbs_tekst = res_object[0][4]
         else:
-            cbs_tekst=''
+            cbs_tekst = ''
         if not res_objectbouwactiviteit == []:
             if res_objectbouwactiviteit[0][7] == 'Oorspronkelijk bouwjaar':
-                bouwjaar=str(res_objectbouwactiviteit[0][2])
+                bouwjaar = str(res_objectbouwactiviteit[0][2])
                 if not bouwjaar == str(res_objectbouwactiviteit[0][3]):
-                    bouwjaar=bouwjaar + '-' + str(res_objectbouwactiviteit[0][3])
+                    bouwjaar = bouwjaar + '-' + str(res_objectbouwactiviteit[0][3])
             else:
-                bouwjaar=''
+                bouwjaar = ''
         else:
-            bouwjaar=''
+            bouwjaar = ''
 
         if not res_objectambacht == []:
             if not res_objectambacht[0][7] is None and not res_objectambacht[0][6] is None:
@@ -106,8 +118,15 @@ class RCEMonumentsDatabase:
                 architect = ''
         else:
             architect=''
-
-        print(woonplaats, adres, oorpsr_functie, cbs_tekst, bouwjaar, architect)
+        if res_object[0][1] is not None and res_object[0][2] is not None:
+            lat, lon = RD_to_WGS84.convert_rd_wgs84(res_object[0][1], res_object[0][2])
+            lat = str(lat)
+            lon = str(lon)
+        else:
+            lat=''
+            lon=''
+        objrijksnr = str(rm_id)
+        print(objrijksnr, woonplaats, adres, oorpsr_functie, cbs_tekst, bouwjaar, architect, lat)
         '''
         <!---->
         {{Tabelrij rijksmonument|woonplaats=Bennekom|objectnaam=De Harn
