@@ -118,15 +118,15 @@ class RCEMonumentsDatabase:
                 architect = ''
         else:
             architect=''
-        if res_object[0][1] is not None and res_object[0][2] is not None:
-            lat, lon = RD_to_WGS84.convert_rd_wgs84(res_object[0][1], res_object[0][2])
+        if res_object[0][2] is not None and res_object[0][3] is not None:
+            lat, lon = RD_to_WGS84.convert_rd_wgs84(res_object[0][2], res_object[0][3])
             lat = str(lat)
             lon = str(lon)
         else:
             lat=''
             lon=''
         objrijksnr = str(rm_id)
-        print(objrijksnr, woonplaats, adres, oorpsr_functie, cbs_tekst, bouwjaar, architect, lat)
+        print(objrijksnr, woonplaats, adres, oorpsr_functie, cbs_tekst, bouwjaar, architect, lat, lon)
         '''
         <!---->
         {{Tabelrij rijksmonument|woonplaats=Bennekom|objectnaam=De Harn

@@ -10,8 +10,8 @@ constants = {'X_0': 155000,
              'L_pq': [5260.52916, 105.94684, 2.45656, -0.81885, 0.05594, -0.05607, 0.01199, -0.00256, 0.00128, 0.00022, -0.00022, 0.00026]}
 
 def convert_rd_wgs84(RD_X, RD_Y):
-    d_X = 1E-5 * (int(RD_X) - constants['X_0'])
-    d_Y = 1E-5 * (int(RD_Y) - constants['Y_0'])
+    d_X = 1E-5 * float(int(RD_X) - constants['X_0'])
+    d_Y = 1E-5 * float(int(RD_Y) - constants['Y_0'])
     phi = 0
     lambd = 0
 
@@ -19,7 +19,7 @@ def convert_rd_wgs84(RD_X, RD_Y):
         phi += (constants['K_pq'][i] * d_X**constants['K_p'][i] * d_Y**constants['K_q'][i])
     phi = constants['phi_0'] + phi / 3600
     for i in range(len(constants['L_p'])):
-        phi += (constants['L_pq'][i] * d_X**constants['L_p'][i] * d_Y**constants['L_q'][i])
+        lambd += (constants['L_pq'][i] * d_X**constants['L_p'][i] * d_Y**constants['L_q'][i])
     lambd = constants['lambda_0'] + lambd / 3600
 
     return phi, lambd

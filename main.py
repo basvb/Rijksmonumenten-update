@@ -35,6 +35,7 @@ def missing_monuments_wikitemplates():
     rce_db.monument_as_rowtemplate(530912)
     rce_db.monument_as_rowtemplate(516836)
     rce_db.close()
+
 rce_db = read_database.RCEMonumentsDatabase()
 for id in missing_monuments_on_wikipedia():
     rce_db.monument_as_rowtemplate(id)
