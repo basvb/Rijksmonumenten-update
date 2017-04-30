@@ -143,10 +143,19 @@ class RCEMonumentsDatabase:
         #the monument id
         objrijksnr = str(rm_id)
 
-        monumentinformation = {'woonplaats': woonplaats, 'objectnaam': objectnaam, 'type_obj': type_obj,
-                               'oorspr_functie': oorspr_functie, 'cbs_tekst': cbs_tekst, 'bouwjaar': bouwjaar,
-                               'architect': architect, 'lat': lat, 'lon': lon, 'objrijksnr': objrijksnr,
-                               'image': '', 'commonscat': ''}
+        monumentinformation = {'woonplaats': woonplaats,
+                               'objectnaam': objectnaam,
+                               'type_obj': type_obj,
+                               'oorspr_functie': oorspr_functie,
+                               'cbs_tekst': cbs_tekst,
+                               'bouwjaar': bouwjaar,
+                               'architect': architect,
+                               'lat': lat,
+                               'lon': lon,
+                               'objrijksnr': objrijksnr,
+                               'image': '',
+                               'commonscat': '',
+                               'adres': adres}
         return monumentinformation
 
 
