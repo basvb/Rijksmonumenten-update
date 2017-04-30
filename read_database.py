@@ -64,15 +64,6 @@ class RCEMonumentsDatabase:
         res_objectbouwactiviteit = self.cur.execute(SQL_objectbouwactiviteit).fetchall()
         res_objectambacht = self.cur.execute(SQL_objectambacht).fetchall()
 
-        #TODO: remove in final versions
-        print(res_object)
-        print(res_objectadres)
-        print(res_objectbeschrijving)
-        print(res_objectfunctie)
-        print(res_objectbouwactiviteit)
-        print(res_objectambacht)
-
-
         #The city/place in which the object is located. Sometimes this is all uppercase so an attempt to fix that is done.
         woonplaats = res_objectadres[0][3]
         if woonplaats.isupper():
