@@ -30,15 +30,15 @@ def no_longer_monument_on_wikipedia():
 def missing_monuments_wikitemplates():
     rce_db = read_database.RCEMonumentsDatabase()
     rce_db.understand_database()
-    rce_db.monument_as_rowtemplate(14453)
-    rce_db.monument_as_rowtemplate(514045)
-    rce_db.monument_as_rowtemplate(530912)
-    rce_db.monument_as_rowtemplate(516836)
+    rce_db.monument_as_rowtemplate(532483)
+    rce_db.monument_as_rowtemplate(532495)
+    rce_db.monument_as_rowtemplate(531046)
+    rce_db.monument_as_rowtemplate(531005)
     rce_db.close()
 
-rce_db = read_database.RCEMonumentsDatabase()
-for id in missing_monuments_on_wikipedia():
-    rce_db.monument_as_rowtemplate(id)
-#missing_monuments_wikitemplates()
+#rce_db = read_database.RCEMonumentsDatabase()
+#for id in missing_monuments_on_wikipedia():
+#    rce_db.monument_as_rowtemplate(id)
+missing_monuments_wikitemplates()
 #print(len(no_longer_monument_on_wikipedia()))
 #print(len(missing_monuments_on_wikipedia()))

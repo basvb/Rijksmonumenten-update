@@ -60,14 +60,14 @@ class RCEMonumentsDatabase:
         res_objectfunctie = self.cur.execute(SQL_objectfunctie).fetchall()
         res_objectbouwactiviteit = self.cur.execute(SQL_objectbouwactiviteit).fetchall()
         res_objectambacht = self.cur.execute(SQL_objectambacht).fetchall()
-        '''
+        
         print(res_object)
         print(res_objectadres)
         print(res_objectbeschrijving)
         print(res_objectfunctie)
         print(res_objectbouwactiviteit)
         print(res_objectambacht)
-        '''
+
 
         #OAD_PLA_NAAM_CAP from tblOBJECTADRES is de woonplaats
         woonplaats = res_objectadres[0][3]
