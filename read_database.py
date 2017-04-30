@@ -40,13 +40,15 @@ class RCEMonumentsDatabase:
             for row in self.cur.columns(table=tab):
                 print("Field name: " + str(row.column_name) + ' (' + tab + ')')
 
-    def monument_as_rowtemplate(self, rm_id):
+    def get_rce_information_on_monument(self, rm_id):
         #Determine the object number used in the database, if it can not be found return nothing/False
         try:
             obj_nummer= self.cur.execute('SELECT OBJ_NUMMER FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)).fetchall()[0][0]
         except IndexError:
             print(rm_id)
             return False
+
+        #All queries which will be used to determine the relevant info to build a rowtemplate from
         SQL_object = 'SELECT OBJ_NUMMER, COM_RIJKSNUMMER, OBJ_X_COORD, OBJ_Y_COORD, OBJ_CBSCODE_ZKP, OBJ_RIJKSNUMMER, OBJ_NAAM, OBJ_WETSARTIKEL_ZKP FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)
         SQL_objectadres ='SELECT OAD_STRAAT, OAD_HUISNUMMER, OAD_TOEVOEGING, OAD_PLA_NAAM_CAP FROM tblOBJECTADRES WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
         SQL_objectbeschrijving ='SELECT TXO_TEKST FROM tblTEXT_OBJECT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
@@ -54,6 +56,7 @@ class RCEMonumentsDatabase:
         SQL_objectbouwactiviteit ='SELECT * FROM tblOBJECTBOUWACTIVITEIT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
         SQL_objectambacht ='SELECT * FROM tblOBJECTAMBACHT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
 
+        #The results from the queries above after execution
         res_object = self.cur.execute(SQL_object).fetchall()
         res_objectadres = self.cur.execute(SQL_objectadres).fetchall()
         res_objectbeschrijving = self.cur.execute(SQL_objectbeschrijving).fetchall()
@@ -61,6 +64,7 @@ class RCEMonumentsDatabase:
         res_objectbouwactiviteit = self.cur.execute(SQL_objectbouwactiviteit).fetchall()
         res_objectambacht = self.cur.execute(SQL_objectambacht).fetchall()
 
+        #TODO: remove in final versions
         print(res_object)
         print(res_objectadres)
         print(res_objectbeschrijving)
@@ -69,11 +73,12 @@ class RCEMonumentsDatabase:
         print(res_objectambacht)
 
 
-        #OAD_PLA_NAAM_CAP from tblOBJECTADRES is de woonplaats
+        #The city/place in which the object is located. Sometimes this is all uppercase so an attempt to fix that is done.
         woonplaats = res_objectadres[0][3]
         if woonplaats.isupper():
             woonplaats = woonplaats.lower().title()
 
+        #Here the address of the object is determined and cleaned.
         if res_objectadres[0][1] is None:
             adres = res_objectadres[0][0]
         elif res_objectadres[0][2] is None:
@@ -83,6 +88,7 @@ class RCEMonumentsDatabase:
         if adres == 'N.v.t.':
             adres=''
 
+        #Here either the object name or description is determined. The description needs manual clean up later on.
         if res_object[0][6] is not None:
             objectnaam = res_object[0][6]
         elif res_objectbeschrijving[0][0] is not None:
@@ -90,17 +96,29 @@ class RCEMonumentsDatabase:
         else:
             objectnaam = ''
 
-        type_obj = ''
+        #The object function is determined.
         if res_objectfunctie == []:
-            oorpsr_functie = ''
+            oorspr_functie = ''
         elif res_objectfunctie[0][1] == 'Oorspronkelijke functie':
-            oorpsr_functie = res_objectfunctie[0][0]
+            oorspr_functie = res_objectfunctie[0][0]
         else:
-            oorpsr_functie = ''
+            oorspr_functie = ''
+
+        #The object function could indicate an acheological object, type_obj indicates this and should be filled
+        if oorspr_functie == 'Archeologie':
+            type_obj = 'A'
+        else:
+            type_obj = 'G'
+
+        #The cbs_tekst is a further description of the object function in main categories.
         if res_object[0][4] is not None:
             cbs_tekst = res_object[0][4]
         else:
             cbs_tekst = ''
+        if type_obj == 'A':
+            cbs_tekst = ''
+
+        #Sometimes there are build years. Indicated by a start and an end year (if these are the same only start is shown)
         if not res_objectbouwactiviteit == []:
             if res_objectbouwactiviteit[0][7] == 'Oorspronkelijk bouwjaar':
                 bouwjaar = str(res_objectbouwactiviteit[0][2])
@@ -111,6 +129,7 @@ class RCEMonumentsDatabase:
         else:
             bouwjaar = ''
 
+        #On few occassions the architect (or builder) is indicated within the database.
         if not res_objectambacht == []:
             if not res_objectambacht[0][7] is None and not res_objectambacht[0][6] is None:
                 architect = res_objectambacht[0][7] + ' ' + res_objectambacht[0][6]
@@ -120,6 +139,8 @@ class RCEMonumentsDatabase:
                 architect = ''
         else:
             architect=''
+
+        #The lat an lon are in Rijksdriehoekscoordinaten and get converted to international wgs84 standard.
         if res_object[0][2] is not None and res_object[0][3] is not None:
             lat, lon = RD_to_WGS84.convert_rd_wgs84(res_object[0][2], res_object[0][3])
             lat = str(lat)
@@ -127,15 +148,15 @@ class RCEMonumentsDatabase:
         else:
             lat=''
             lon=''
+
+        #the monument id
         objrijksnr = str(rm_id)
-        print(objrijksnr, woonplaats, adres, oorpsr_functie, cbs_tekst, bouwjaar, architect, lat, lon)
-        '''
-        <!---->
-        {{Tabelrij rijksmonument|woonplaats=Bennekom|objectnaam=De Harn
-        |type_obj=G|oorspr_functie=Boerderij|cbs_tekst=Agrarische gebouwen
-        |bouwjaar={{Sorteer|1500|16e eeuw}}|architect=|adres=Harnsedijkje 2A
-        |lat=52.00194|lon=5.64909|objrijksnr=14453|image=De Harn.jpg|commonscat=De Harn, Bennekom}}
-        '''
+
+        monumentinformation = {'woonplaats': woonplaats, 'objectnaam': objectnaam, 'type_obj': type_obj,
+                               'oorspr_functie': oorspr_functie, 'cbs_tekst': cbs_tekst, 'bouwjaar': bouwjaar,
+                               'architect': architect, 'lat': lat, 'lon': lon, 'objrijksnr': objrijksnr,
+                               'image': '', 'commonscat': ''}
+        return monumentinformation
 
 
     def close(self):
