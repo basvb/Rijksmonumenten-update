@@ -66,7 +66,7 @@ def missing_monuments_dump():
     for monument_identifier in missing_monuments_on_wikipedia():
         monument_info = rce_db.get_rce_information_on_monument(monument_identifier)
         rowtemplate = monument_info_to_rowtemplate(monument_info)
-        rowtemplates.append((monument_info['woonplaats'], rowtemplate)) #add a tuple with the place and the rowtemplate
+        rowtemplates.append((lower(monument_info['woonplaats']), rowtemplate)) #add a tuple with the place and the rowtemplate
     rce_db.close()
     rowtemplates = sorted(rowtemplates,key=itemgetter(0)) #sort the rowtemplates based on the place
     print(rowtemplates)
