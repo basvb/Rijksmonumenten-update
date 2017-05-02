@@ -56,6 +56,10 @@ class RCEMonumentsDatabase:
         SQL_objectbouwactiviteit ='SELECT * FROM tblOBJECTBOUWACTIVITEIT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
         SQL_objectambacht ='SELECT * FROM tblOBJECTAMBACHT WHERE OBJ_NUMMER={obj};'.format(obj=obj_nummer)
 
+        aanwijzing = self.cur.execute('SELECT OBJ_WETSARTIKEL_ZKP FROM tblOBJECT WHERE OBJ_RIJKSNUMMER={id};'.format(id=rm_id)).fetchall()[0][0]
+        if aanwijzing == '3 (Voorlopige aanwijzing)':
+            return False
+
         #The results from the queries above after execution
         res_object = self.cur.execute(SQL_object).fetchall()
         res_objectadres = self.cur.execute(SQL_objectadres).fetchall()
@@ -176,7 +180,7 @@ class WikipediaMonumentsDatabase:
     def load_monuments_from_web(self):
         #Get a list of all monuments in the database by Rijksmonumentnumber
         base_url = 'https://tools.wmflabs.org/heritage/api/api.php?action=search&srcountry=nl&srlang=nl&format=json'
-        all_monuments=False
+        all_monuments = False
         url = base_url
         monuments = []
         while not all_monuments:
@@ -205,3 +209,13 @@ class WikipediaMonumentsDatabase:
         if self.monuments is None:
             return False
         return [int(x['id']) for x in self.monuments]
+
+    def get_monument_info(self, mon_id):
+        if self.monuments is None:
+            return False
+        return [x for x in self.monuments if int(x['id']) == int(mon_id)]
+
+    def get_monuments_info(self, mon_ids):
+        if self.monuments is None:
+            return False
+        return [x for x in self.monuments if int(x['id']) in mon_ids]
